@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.codelab.mlkit;
+package com.google.codelab.mlkit.customview;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -20,7 +20,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 
-import com.google.codelab.mlkit.GraphicOverlay.Graphic;
+import com.google.codelab.mlkit.customview.GraphicOverlay.Graphic;
 import com.google.mlkit.vision.text.Text;
 
 /**
@@ -38,7 +38,7 @@ public class TextGraphic extends Graphic {
     private final Paint textPaint;
     private final Text.Element element;
 
-    TextGraphic(GraphicOverlay overlay, Text.Element element) {
+    public TextGraphic(GraphicOverlay overlay, Text.Element element) {
         super(overlay);
 
         this.element = element;

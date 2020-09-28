@@ -1,4 +1,4 @@
-package com.google.codelab.mlkit;
+package com.google.codelab.mlkit.customview;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

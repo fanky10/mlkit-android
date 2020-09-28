@@ -1,18 +1,4 @@
-// Copyright 2018 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-package com.google.codelab.mlkit;
+package com.google.codelab.mlkit.activities;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -28,16 +14,13 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.mlkit.vision.common.InputImage;
+import com.google.codelab.mlkit.R;
+import com.google.codelab.mlkit.customview.GraphicOverlay;
+import com.google.codelab.mlkit.customview.TextGraphic;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.text.Text;
-import com.google.mlkit.vision.text.TextRecognition;
-import com.google.mlkit.vision.text.TextRecognizer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,12 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+abstract class BaseRecognitionActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private static final String TAG = "MainActivity";
     private ImageView mImageView;
-    private Button mTextButton;
-    private Button mFaceButton;
-    private Bitmap mSelectedImage;
+    protected Button mTextButton;
+    protected Button mFaceButton;
+    protected Bitmap mSelectedImage;
     private GraphicOverlay mGraphicOverlay;
     // Max width (portrait mode)
     private Integer mImageMaxWidth;
@@ -86,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_recognition);
 
         mImageView = findViewById(R.id.image_view);
 
@@ -114,31 +97,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         dropdown.setOnItemSelectedListener(this);
     }
 
-    private void runTextRecognition() {
-        InputImage image = InputImage.fromBitmap(mSelectedImage, 0);
-        TextRecognizer recognizer = TextRecognition.getClient();
-        mTextButton.setEnabled(false);
-        recognizer.process(image)
-                .addOnSuccessListener(
-                        new OnSuccessListener<Text>() {
-                            @Override
-                            public void onSuccess(Text texts) {
-                                mTextButton.setEnabled(true);
-                                processTextRecognitionResult(texts);
-                            }
-                        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Task failed with an exception
-                                mTextButton.setEnabled(true);
-                                e.printStackTrace();
-                            }
-                        });
-    }
+    protected abstract void runTextRecognition();
 
-    private void processTextRecognitionResult(Text texts) {
+
+    protected void processTextRecognitionResult(Text texts) {
         List<Text.TextBlock> blocks = texts.getTextBlocks();
         if (blocks.size() == 0) {
             showToast("No text found");
