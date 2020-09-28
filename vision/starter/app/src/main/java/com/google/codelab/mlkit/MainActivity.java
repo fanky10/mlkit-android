@@ -19,9 +19,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,8 +28,16 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
         Spinner dropdown = findViewById(R.id.spinner);
-        String[] items = new String[]{"Test Image 1 (Text)", "Test Image 2 (Face)"};
+        String[] items = new String[]{"Test Image 1 (Text)", "Test Image 2 (Face)", "Handwritten ES", "Handwriting EN"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout
                 .simple_spinner_dropdown_item, items);
         dropdown.setAdapter(adapter);
@@ -110,11 +115,47 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void runTextRecognition() {
-        // Replace with code from the codelab to run text recognition.
+        InputImage image = InputImage.fromBitmap(mSelectedImage, 0);
+        TextRecognizer recognizer = TextRecognition.getClient();
+        mTextButton.setEnabled(false);
+        recognizer.process(image)
+                .addOnSuccessListener(
+                        new OnSuccessListener<Text>() {
+                            @Override
+                            public void onSuccess(Text texts) {
+                                mTextButton.setEnabled(true);
+                                processTextRecognitionResult(texts);
+                            }
+                        })
+                .addOnFailureListener(
+                        new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // Task failed with an exception
+                                mTextButton.setEnabled(true);
+                                e.printStackTrace();
+                            }
+                        });
     }
 
     private void processTextRecognitionResult(Text texts) {
-        // Replace with code from the codelab to process the text recognition result.
+        List<Text.TextBlock> blocks = texts.getTextBlocks();
+        if (blocks.size() == 0) {
+            showToast("No text found");
+            return;
+        }
+        mGraphicOverlay.clear();
+        for (int i = 0; i < blocks.size(); i++) {
+            List<Text.Line> lines = blocks.get(i).getLines();
+            for (int j = 0; j < lines.size(); j++) {
+                List<Text.Element> elements = lines.get(j).getElements();
+                for (int k = 0; k < elements.size(); k++) {
+                    GraphicOverlay.Graphic textGraphic = new TextGraphic(mGraphicOverlay, elements.get(k));
+                    mGraphicOverlay.add(textGraphic);
+
+                }
+            }
+        }
     }
 
     private void runFaceContourDetection() {
@@ -178,8 +219,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mSelectedImage = getBitmapFromAsset(this, "Please_walk_on_the_grass.jpg");
                 break;
             case 1:
-                // Whatever you want to happen when the thrid item gets selected
+                // Whatever you want to happen when the third item gets selected
                 mSelectedImage = getBitmapFromAsset(this, "grace_hopper.jpg");
+                break;
+            case 2:
+                mSelectedImage = getBitmapFromAsset(this, "handwriting_es.jpg");
+                break;
+
+            case 3:
+                mSelectedImage = getBitmapFromAsset(this, "handwriting_en.jpg");
                 break;
         }
         if (mSelectedImage != null) {
