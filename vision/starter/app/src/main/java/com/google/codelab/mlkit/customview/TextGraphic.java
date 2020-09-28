@@ -17,11 +17,11 @@ package com.google.codelab.mlkit.customview;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
 
 import com.google.codelab.mlkit.customview.GraphicOverlay.Graphic;
-import com.google.mlkit.vision.text.Text;
 
 /**
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
@@ -36,9 +36,9 @@ public class TextGraphic extends Graphic {
 
     private final Paint rectPaint;
     private final Paint textPaint;
-    private final Text.Element element;
+    private final Element element;
 
-    public TextGraphic(GraphicOverlay overlay, Text.Element element) {
+    public TextGraphic(GraphicOverlay overlay, Element element) {
         super(overlay);
 
         this.element = element;
@@ -71,5 +71,23 @@ public class TextGraphic extends Graphic {
 
         // Renders the text at the bottom of the box.
         canvas.drawText(element.getText(), rect.left, rect.bottom, textPaint);
+    }
+
+    public static class Element {
+        private final String text;
+        private final Rect boundingBox;
+
+        public Element(String text, Rect boundingBox) {
+            this.text = text;
+            this.boundingBox = boundingBox;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public Rect getBoundingBox() {
+            return boundingBox;
+        }
     }
 }

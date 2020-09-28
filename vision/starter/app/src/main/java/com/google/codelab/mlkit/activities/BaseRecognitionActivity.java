@@ -18,9 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.codelab.mlkit.R;
 import com.google.codelab.mlkit.customview.GraphicOverlay;
-import com.google.codelab.mlkit.customview.TextGraphic;
 import com.google.mlkit.vision.face.Face;
-import com.google.mlkit.vision.text.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +33,7 @@ abstract class BaseRecognitionActivity extends AppCompatActivity implements Adap
     protected Button mTextButton;
     protected Button mFaceButton;
     protected Bitmap mSelectedImage;
-    private GraphicOverlay mGraphicOverlay;
+    protected GraphicOverlay mGraphicOverlay;
     // Max width (portrait mode)
     private Integer mImageMaxWidth;
     // Max height (portrait mode)
@@ -99,27 +97,6 @@ abstract class BaseRecognitionActivity extends AppCompatActivity implements Adap
 
     protected abstract void runTextRecognition();
 
-
-    protected void processTextRecognitionResult(Text texts) {
-        List<Text.TextBlock> blocks = texts.getTextBlocks();
-        if (blocks.size() == 0) {
-            showToast("No text found");
-            return;
-        }
-        mGraphicOverlay.clear();
-        for (int i = 0; i < blocks.size(); i++) {
-            List<Text.Line> lines = blocks.get(i).getLines();
-            for (int j = 0; j < lines.size(); j++) {
-                List<Text.Element> elements = lines.get(j).getElements();
-                for (int k = 0; k < elements.size(); k++) {
-                    GraphicOverlay.Graphic textGraphic = new TextGraphic(mGraphicOverlay, elements.get(k));
-                    mGraphicOverlay.add(textGraphic);
-
-                }
-            }
-        }
-    }
-
     private void runFaceContourDetection() {
         // Replace with code from the codelab to run face contour detection.
     }
@@ -128,7 +105,7 @@ abstract class BaseRecognitionActivity extends AppCompatActivity implements Adap
         // Replace with code from the codelab to process the face contour detection result.
     }
 
-    private void showToast(String message) {
+    protected void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
